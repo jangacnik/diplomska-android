@@ -4,4 +4,7 @@
     <string name="e_mail">E-mail</string>
     <string name="password">Password</string>
     <string name="register">Register</string>
+
+    <string name="preference_file_key">preferenceFile</string>
+    <string name="preference_user_login">userLoginData</string>
 </resources>
