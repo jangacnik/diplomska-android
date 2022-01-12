@@ -8,4 +8,12 @@
     <string name="preference_file_key">jwt</string>
     <string name="preference_token">token</string>
     <string name="preference_refresh">refresh</string>
+
+    <string name="welcome">Welcome</string>
+    <string name="todays_hours">Today\'s hours</string>
+    <string name="weekly_hours">Total hours this week</string>
+    <string name="monthly_hours">Total hours this month</string>
+
+    <string name="daily_hours_week">Daily hours this week</string>
+    <string name="monthly_hours_current_year">Hours per month</string>
 </resources>
