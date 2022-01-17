@@ -16,4 +16,5 @@
 
     <string name="daily_hours_week">Daily hours this week</string>
     <string name="monthly_hours_current_year">Hours per month</string>
+    <string name="yearly_overview">Yearly overview</string>
 </resources>
