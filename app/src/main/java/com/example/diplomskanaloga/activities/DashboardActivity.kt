@@ -11,6 +11,5 @@ class DashboardActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
         employeeRestService = EmployeeRestService()
-        employeeRestService.getUserData(this)
     }
 }

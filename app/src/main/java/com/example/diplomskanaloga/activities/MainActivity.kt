@@ -5,20 +5,35 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.TextView
+import com.android.volley.VolleyError
 import com.example.diplomskanaloga.R
+import com.example.diplomskanaloga.interfaces.VolleyResponse
+import com.example.diplomskanaloga.models.Employee
+import com.example.diplomskanaloga.services.EmployeeRestService
 import com.example.diplomskanaloga.utils.ChartUtils
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
+import com.google.gson.Gson
 
 
 class MainActivity : AppCompatActivity() {
+    lateinit var employeeRestService: EmployeeRestService
+    lateinit var userData: Employee
 
+    // elements
+    lateinit var welcomeTextView: TextView
+
+    // util
+    val gson = Gson()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        barTest()
+        welcomeTextView = findViewById(R.id.welcome_text)
+        employeeRestService = EmployeeRestService()
+        isUserLoggedIn()
     }
 
     fun isUserLoggedIn() {
@@ -29,10 +44,20 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, AuthenticationActivity::class.java).apply {
             }
             startActivity(intent)
-        } else {
-            val intent = Intent(this, DashboardActivity::class.java).apply {
-            }
-            startActivity(intent)
+        }else {
+            employeeRestService.getUserData(this, object: VolleyResponse {
+                override fun onSuccess(response: Any?) {
+                    userData = gson.fromJson(response.toString(), Employee::class.java)
+                    welcomeTextView.append(", "+userData.name)
+                    Log.w("Response", userData.toString())
+                }
+
+                override fun onError(error: VolleyError?) {
+                    if (error != null) {
+                        Log.e("Response Error", error.networkResponse.toString())
+                    }
+                }
+            })
         }
     }
 

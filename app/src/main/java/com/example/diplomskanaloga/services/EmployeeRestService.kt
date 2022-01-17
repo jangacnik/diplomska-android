@@ -7,8 +7,10 @@ import android.widget.Toast
 import com.android.volley.AuthFailureError
 import com.android.volley.Request
 import com.android.volley.Response
+import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonObjectRequest
 import com.example.diplomskanaloga.Constants
+import com.example.diplomskanaloga.interfaces.VolleyResponse
 import com.example.diplomskanaloga.models.Address
 import com.example.diplomskanaloga.models.Employee
 import com.example.diplomskanaloga.models.JWT
@@ -25,25 +27,29 @@ class EmployeeRestService constructor() {
 
     val gson = Gson()
 
-    fun login(context: Context, credentials: LoginCridentials) {
+    fun login(context: Context, credentials: LoginCridentials, callback: VolleyResponse) {
         var toast = Toast.makeText(context, "", Toast.LENGTH_SHORT)
         HttpsTrustManager.allowAllSSL()
         val data = JSONObject(gson.toJson(credentials))
+        Log.w("data", data.toString())
         val loginUserRequest = JsonObjectRequest(
             Request.Method.POST,
             Constants.baseUrl + "/authenticate",
             data,
             Response.Listener { response ->
-                Log.d("RESPONSE", response.toString())
                 toast.setText("LOGIN SUCCESSFUL")
                 toast.show()
-                saveToken(response.getString("jwttoken"), response.getString("refreshToken"), context)
+                saveToken(
+                    response.getString("jwttoken"),
+                    response.getString("refreshToken"),
+                    context
+                )
+                callback.onSuccess(response)
             },
             { error ->
-                Log.e("ERROR", String(error.networkResponse.data))
                 toast.setText("LOGIN UNSUCCESSFUL")
                 toast.show()
-
+                callback.onError(error)
             })
         RestQueueService.getInstance(context).addToRequestQueue(loginUserRequest)
     }
@@ -54,7 +60,7 @@ class EmployeeRestService constructor() {
             .putString("refresh", refreshToken).apply()
     }
 
-    fun getUserData(context: Context) {
+    fun getUserData(context: Context, volleyResponse: VolleyResponse) {
         HttpsTrustManager.allowAllSSL()
         val sharedPrefs = context.getSharedPreferences("jwt", Context.MODE_PRIVATE)
         val jwt = sharedPrefs.getString("token", "")
@@ -62,10 +68,10 @@ class EmployeeRestService constructor() {
             Request.Method.GET,
             Constants.baseUrl + Constants.employeeSufix + "/user",
             null,
-            Response.Listener {
-                response -> Log.d("test", response.toString())
-            }, {
-                error ->Log.e("test", String(error.networkResponse.data))
+            Response.Listener { response ->
+                volleyResponse.onSuccess(response)
+            }, { error ->
+                volleyResponse.onError(error)
             }) {
             @Throws(AuthFailureError::class)
             override fun getHeaders(): Map<String, String> {
@@ -75,6 +81,7 @@ class EmployeeRestService constructor() {
             }
         }
         RestQueueService.getInstance(context).addToRequestQueue(userDataRequest)
-        }
+    }
+
 
 }
