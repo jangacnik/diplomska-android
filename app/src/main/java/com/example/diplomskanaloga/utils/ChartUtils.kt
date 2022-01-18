@@ -49,7 +49,7 @@ class ChartUtils {
 //            chart.xAxis.isGranularityEnabled = true
 //            chart.xAxis.setCenterAxisLabels(false)
             chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
-            chart.xAxis.valueFormatter = IndexAxisValueFormatter(Constants.MONTHS_LABEL.asReversed())
+//            chart.xAxis.valueFormatter = IndexAxisValueFormatter(Constants.MONTHS_LABEL)
             // hide description
             chart.description.text = ""
             // hide legend
