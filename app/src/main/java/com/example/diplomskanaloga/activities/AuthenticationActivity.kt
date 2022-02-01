@@ -34,11 +34,10 @@ class AuthenticationActivity : AppCompatActivity() {
             override fun onError(error: VolleyError?) {
             }
         })
-        val t = this.getSharedPreferences("jwt", Context.MODE_PRIVATE).getString("token", "")
     }
 
     fun openMainActivity() {
-        val intent = Intent(this, MainActivity::class.java).apply {
+        val intent = Intent(this, NavigationActivity::class.java).apply {
         }
         startActivity(intent)
     }

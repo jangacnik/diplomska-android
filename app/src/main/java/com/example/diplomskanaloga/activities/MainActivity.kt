@@ -28,8 +28,6 @@ import com.google.gson.Gson
 class MainActivity : AppCompatActivity(), OnChartValueSelectedListener {
     lateinit var employeeRestService: EmployeeRestService
     lateinit var userData: Employee
-    // elements
-    lateinit var welcomeTextView: TextView
 
     // util
     val gson = Gson()
@@ -38,9 +36,7 @@ class MainActivity : AppCompatActivity(), OnChartValueSelectedListener {
         setContentView(R.layout.activity_main)
 //        welcomeTextView = findViewById(R.id.welcome_text)
         employeeRestService = EmployeeRestService()
-        barchartTest(R.id.weekly_bar_chart)
-        horizontalBarChartText(R.id.yearly_overview_chart)
-//        isUserLoggedIn()
+        isUserLoggedIn()
     }
 
     fun isUserLoggedIn() {
@@ -48,24 +44,30 @@ class MainActivity : AppCompatActivity(), OnChartValueSelectedListener {
             this.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
         // if user isn't logged in forward to auth activity else dashboard
         if (!sharedPreferences.contains(getString(R.string.preference_token))) {
-            val intent = Intent(this, AuthenticationActivity::class.java).apply {
+            openAuth()
+        } else {
+            val intent = Intent(this, NavigationActivity::class.java).apply {
             }
             startActivity(intent)
-        } else {
             employeeRestService.getUserData(this, object : VolleyResponse {
                 override fun onSuccess(response: Any?) {
                     userData = gson.fromJson(response.toString(), Employee::class.java)
-                    welcomeTextView.append(", " + userData.name)
-                    Log.w("Response", userData.toString())
                 }
 
                 override fun onError(error: VolleyError?) {
                     if (error != null) {
-                        Log.e("Response Error", error.networkResponse.toString())
+                        sharedPreferences.edit().clear().apply()
+                        openAuth()
                     }
                 }
             })
         }
+    }
+
+    fun openAuth() {
+        val intent = Intent(this, AuthenticationActivity::class.java).apply {
+        }
+        startActivity(intent)
     }
 
     fun barchartTest(id: Int) {
