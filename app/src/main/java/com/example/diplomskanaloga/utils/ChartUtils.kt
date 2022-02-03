@@ -1,6 +1,5 @@
 package com.example.diplomskanaloga.utils
 
-import android.graphics.Color
 import com.example.diplomskanaloga.Constants
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.HorizontalBarChart
@@ -25,7 +24,7 @@ class ChartUtils {
             chart.xAxis.isGranularityEnabled = true
             chart.xAxis.setCenterAxisLabels(false)
             chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
-            chart.xAxis.valueFormatter = IndexAxisValueFormatter(Constants.WEEKDAY_LABEL)
+            chart.xAxis.valueFormatter = IndexAxisValueFormatter(Constants.WEEKDAY_LABEL_SLO)
             // hide description
             chart.description.text = ""
             // hide legend

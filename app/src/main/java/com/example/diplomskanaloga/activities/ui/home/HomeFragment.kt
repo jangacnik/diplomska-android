@@ -18,7 +18,9 @@ import com.example.diplomskanaloga.activities.AuthenticationActivity
 import com.example.diplomskanaloga.databinding.FragmentHomeBinding
 import com.example.diplomskanaloga.interfaces.VolleyResponse
 import com.example.diplomskanaloga.models.Employee
+import com.example.diplomskanaloga.models.response.WeeklyReportResponse
 import com.example.diplomskanaloga.services.EmployeeRestService
+import com.example.diplomskanaloga.services.WorkHoursRestService
 import com.example.diplomskanaloga.utils.ChartUtils
 import com.example.diplomskanaloga.utils.ChartValueFormatter
 import com.github.mikephil.charting.charts.BarChart
@@ -30,15 +32,18 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class HomeFragment : Fragment(), OnChartValueSelectedListener {
 
     private lateinit var homeViewModel: HomeViewModel
     private var _binding: FragmentHomeBinding? = null
     lateinit var employeeRestService: EmployeeRestService
+    lateinit var workHoursRestService: WorkHoursRestService
     lateinit var userData: Employee
+    lateinit var weeklyReport: Map<String, Long>
     // elements
-    lateinit var welcomeTextView: TextView
+    lateinit var hoursThisWeekTextview: TextView
 
     lateinit var barChart: BarChart
     lateinit var horizontalBarChart: HorizontalBarChart
@@ -55,6 +60,7 @@ class HomeFragment : Fragment(), OnChartValueSelectedListener {
         savedInstanceState: Bundle?
     ): View? {
         employeeRestService = EmployeeRestService()
+        workHoursRestService = WorkHoursRestService()
         homeViewModel =
             ViewModelProvider(this).get(HomeViewModel::class.java)
 
@@ -63,13 +69,15 @@ class HomeFragment : Fragment(), OnChartValueSelectedListener {
 
         barChart = binding.weeklyBarChart
         horizontalBarChart = binding.yearlyOverviewChart
+        hoursThisWeekTextview = root.findViewById(R.id.textView_week_total)
+        getWeeklyReport(root)
 
 //        val textView: TextView = binding.textHome
 //        homeViewModel.text.observe(viewLifecycleOwner, Observer {
 //            textView.text = it
 //        })
-        barchartTest()
-        horizontalBarChartText()
+//        barchartTest()
+//        horizontalBarChartText()
         return root
     }
 
@@ -78,30 +86,55 @@ class HomeFragment : Fragment(), OnChartValueSelectedListener {
         _binding = null
     }
 
-//    fun isUserLoggedIn() {
-//        val sharedPreferences =
-//            this.context.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-//        // if user isn't logged in forward to auth activity else dashboard
-//        if (!sharedPreferences.contains(getString(R.string.preference_token))) {
-//            val intent = Intent(this, AuthenticationActivity::class.java).apply {
-//            }
-//            startActivity(intent)
-//        } else {
-//            employeeRestService.getUserData(this, object : VolleyResponse {
-//                override fun onSuccess(response: Any?) {
-//                    userData = gson.fromJson(response.toString(), Employee::class.java)
-//                    welcomeTextView.append(", " + userData.name)
-//                    Log.w("Response", userData.toString())
-//                }
-//
-//                override fun onError(error: VolleyError?) {
-//                    if (error != null) {
-//                        Log.e("Response Error", error.networkResponse.toString())
-//                    }
-//                }
-//            })
-//        }
-//    }
+    fun getWeeklyReport(root: View) {
+        workHoursRestService.getWeeklyReport(this.requireContext(), object : VolleyResponse {
+            override fun onSuccess(response: Any?) {
+                val type = object:TypeToken<Map<String, Long>>(){}.type
+                weeklyReport = gson.fromJson(response.toString(), type)
+//                Log.w("Response", weeklyReport)
+                initWeeklyBarChart(weeklyReport)
+            }
+
+            override fun onError(error: VolleyError?) {
+                if (error != null) {
+                    Log.e("Response Error", error.networkResponse.toString())
+                }
+            }
+        })
+    }
+
+    fun initWeeklyBarChart(values: Map<String, Long>) {
+
+        val entries: MutableList<BarEntry> = ArrayList()
+        Constants.WEEKDAY_LABEL.forEach { v ->
+            if(values[v] != null){
+                val fVal = values.get(v)!!.toFloat()
+                var time: Float = fVal.div(60f)
+                entries.add(BarEntry(Constants.WEEKDAY_LABEL.indexOf(v).toFloat(), time))
+            }else {
+                entries.add(BarEntry(Constants.WEEKDAY_LABEL.indexOf(v).toFloat(), 0f))
+            } }
+
+        val barData = BarDataSet(entries, null)
+        barData.color = resources.getColor(R.color.secondaryColor)
+        val data = BarData(barData)
+        data.barWidth = 0.9f
+        val chart: BarChart = ChartUtils.setBarChartDefaults(barChart)
+        chart.data = data
+        chart.animateXY(1000, 1000)
+        // set text size of bar values
+        chart.data.setValueTextSize(14f)
+
+        chart.animate()
+        var totalMin: Long = 0
+        var totalHour: Float = 0f
+        for((key, value) in values) {
+            totalMin += value
+        }
+        totalHour = totalMin.toFloat().div(60).toFloat()
+        hoursThisWeekTextview.setText("$totalHour hours")
+    }
+
 
     fun barchartTest() {
         val entries: MutableList<BarEntry> = ArrayList()

@@ -9,6 +9,7 @@ object Constants {
     const val monthlyHoursSufix = "/api/v1/monthly";
 
     // Labels for charts
-    val WEEKDAY_LABEL: List<String> = Collections.unmodifiableList(listOf("PON", "TOR", "SRE", "CET", "PET", "SOB", "NED"))
+    val WEEKDAY_LABEL: List<String> = Collections.unmodifiableList(listOf("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"))
+    val WEEKDAY_LABEL_SLO: List<String> = Collections.unmodifiableList(listOf("PON", "TOR", "SRE", "CET", "PET", "SOB", "NED"))
     val MONTHS_LABEL: List<String> = Collections.unmodifiableList(listOf("JAN", "FEB", "MAR", "APR", "MAJ", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DEC"))
 }

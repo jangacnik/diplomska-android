@@ -84,7 +84,7 @@ class ProfileFragment : Fragment() {
         streetEditText = root.findViewById(R.id.street_editText)
         zipEditText = root.findViewById(R.id.zip_editText)
         cityEditText = root.findViewById(R.id.city_editText)
-        roleTextview = root.findViewById(R.id.role_textView)
+        roleTextview = root.findViewById(R.id.textViewRole)
         birthdayEditText.setOnClickListener {
             onDateEditTextClicked()
         }
@@ -93,7 +93,10 @@ class ProfileFragment : Fragment() {
         streetEditText.setText(userData.address.street)
         zipEditText.setText(userData.address.postalCode)
         cityEditText.setText(userData.address.city)
-//        roleTextview.setText(userData)
+        var roles: String = ""
+        userData.roles?.forEach { r -> roles+=r.authority+", " }
+        roles = roles.dropLast(2)
+        roleTextview.setText(roles)
     }
 
     override fun onDestroyView() {

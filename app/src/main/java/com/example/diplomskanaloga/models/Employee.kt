@@ -1,6 +1,7 @@
 package com.example.diplomskanaloga.models
 
 import com.example.diplomskanaloga.models.enums.Gender
+import java.util.*
 
 data class Employee(
     var uuid: String? = null,
@@ -10,5 +11,6 @@ data class Employee(
     var phone: String,
     val address: Address,
     var gender: Gender,
-    var deviceId: MutableList<String>? = null,
+    var deviceId: MutableList<Device>? = null,
+    var roles: MutableList<Roles>? = null
 )

@@ -49,18 +49,6 @@ class MainActivity : AppCompatActivity(), OnChartValueSelectedListener {
             val intent = Intent(this, NavigationActivity::class.java).apply {
             }
             startActivity(intent)
-            employeeRestService.getUserData(this, object : VolleyResponse {
-                override fun onSuccess(response: Any?) {
-                    userData = gson.fromJson(response.toString(), Employee::class.java)
-                }
-
-                override fun onError(error: VolleyError?) {
-                    if (error != null) {
-                        sharedPreferences.edit().clear().apply()
-                        openAuth()
-                    }
-                }
-            })
         }
     }
 
