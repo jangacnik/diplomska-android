@@ -33,6 +33,7 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.text.DecimalFormat
 
 class HomeFragment : Fragment(), OnChartValueSelectedListener {
 
@@ -42,6 +43,9 @@ class HomeFragment : Fragment(), OnChartValueSelectedListener {
     lateinit var workHoursRestService: WorkHoursRestService
     lateinit var userData: Employee
     lateinit var weeklyReport: Map<String, Long>
+    lateinit var monthlyReport: Map<String, Long>
+    private val decimalFormat = DecimalFormat("###,###,##0.0")
+
     // elements
     lateinit var hoursThisWeekTextview: TextView
 
@@ -50,6 +54,7 @@ class HomeFragment : Fragment(), OnChartValueSelectedListener {
 
     // util
     val gson = Gson()
+
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
@@ -71,7 +76,8 @@ class HomeFragment : Fragment(), OnChartValueSelectedListener {
         horizontalBarChart = binding.yearlyOverviewChart
         hoursThisWeekTextview = root.findViewById(R.id.textView_week_total)
         getWeeklyReport(root)
-
+        getMonthlyReport(root)
+//        horizontalBarChartText()
 //        val textView: TextView = binding.textHome
 //        homeViewModel.text.observe(viewLifecycleOwner, Observer {
 //            textView.text = it
@@ -89,10 +95,27 @@ class HomeFragment : Fragment(), OnChartValueSelectedListener {
     fun getWeeklyReport(root: View) {
         workHoursRestService.getWeeklyReport(this.requireContext(), object : VolleyResponse {
             override fun onSuccess(response: Any?) {
-                val type = object:TypeToken<Map<String, Long>>(){}.type
+                val type = object : TypeToken<Map<String, Long>>() {}.type
                 weeklyReport = gson.fromJson(response.toString(), type)
 //                Log.w("Response", weeklyReport)
                 initWeeklyBarChart(weeklyReport)
+            }
+
+            override fun onError(error: VolleyError?) {
+                if (error != null) {
+                    Log.e("Response Error", error.networkResponse.toString())
+                }
+            }
+        })
+    }
+
+    fun getMonthlyReport(root: View) {
+        workHoursRestService.getMonthlyReport(this.requireContext(), object : VolleyResponse {
+            override fun onSuccess(response: Any?) {
+                val type = object : TypeToken<Map<String, Long>>() {}.type
+                monthlyReport = gson.fromJson(response.toString(), type)
+//                Log.w("Response", weeklyReport)
+                initMonthlyChart(monthlyReport)
             }
 
             override fun onError(error: VolleyError?) {
@@ -107,14 +130,14 @@ class HomeFragment : Fragment(), OnChartValueSelectedListener {
 
         val entries: MutableList<BarEntry> = ArrayList()
         Constants.WEEKDAY_LABEL.forEach { v ->
-            if(values[v] != null){
+            if (values[v] != null) {
                 val fVal = values.get(v)!!.toFloat()
                 var time: Float = fVal.div(60f)
                 entries.add(BarEntry(Constants.WEEKDAY_LABEL.indexOf(v).toFloat(), time))
-            }else {
+            } else {
                 entries.add(BarEntry(Constants.WEEKDAY_LABEL.indexOf(v).toFloat(), 0f))
-            } }
-
+            }
+        }
         val barData = BarDataSet(entries, null)
         barData.color = resources.getColor(R.color.secondaryColor)
         val data = BarData(barData)
@@ -128,11 +151,58 @@ class HomeFragment : Fragment(), OnChartValueSelectedListener {
         chart.animate()
         var totalMin: Long = 0
         var totalHour: Float = 0f
-        for((key, value) in values) {
+        for ((key, value) in values) {
             totalMin += value
         }
         totalHour = totalMin.toFloat().div(60).toFloat()
         hoursThisWeekTextview.setText("$totalHour hours")
+    }
+
+    fun initMonthlyChart(values: Map<String, Long>) {
+        val entries: MutableList<BarEntry> = ArrayList()
+
+        Constants.MONTHS_LABEL.forEach { v ->
+            if (values[v] != null) {
+                val fVal = values.get(v)!!.toFloat()
+                var time: Float = fVal.div(60f)
+                entries.add(BarEntry(Constants.MONTHS_LABEL.indexOf(v).toFloat()-1, time)) // -1 because january is 1 not 0 in backend
+            } else {
+                entries.add(BarEntry(Constants.MONTHS_LABEL.indexOf(v).toFloat(), 0f))
+            }
+        }
+        val valueFormatter = ChartValueFormatter("", " h", Constants.MONTHS_LABEL.filter { label -> values.get(label) != null })
+        val barData = BarDataSet(entries, null)
+        barData.color = resources.getColor(R.color.secondaryColor)
+        val data = BarData(barData)
+        data.setValueFormatter(valueFormatter)
+        data.barWidth = 0.9f
+        val chart: HorizontalBarChart =
+            ChartUtils.setHorizontalBarChartDefault(horizontalBarChart)
+        chart.xAxis.setLabelCount(entries.size, false)
+        chart.data = data
+        chart.data.setValueTextSize(14f)
+        chart.offsetLeftAndRight(20)
+        chart.animateXY(1000, 1000)
+        chart.setDrawValueAboveBar(false)
+        // fixes not showing of values in horizontal chart
+        chart.axisLeft.axisMinimum = 0f
+        chart.axisLeft.axisMaximum = data.yMax
+        chart.setOnChartValueSelectedListener(this)
+        chart.xAxis.valueFormatter = valueFormatter
+        chart.animate()
+
+
+//
+//        val barData = BarDataSet(entries, null)
+//        barData.color = resources.getColor(R.color.secondaryColor)
+//        val data = BarData(barData)
+//        data.barWidth = 0.8f
+//        val chart: BarChart = ChartUtils.setHorizontalBarChartDefault(horizontalBarChart)
+//        chart.data = data
+//        chart.animateXY(1000, 1000)
+//        // set text size of bar values
+//        chart.data.setValueTextSize(14f)
+//        chart.animate()
     }
 
 

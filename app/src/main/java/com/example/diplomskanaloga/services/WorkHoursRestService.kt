@@ -32,4 +32,27 @@ class WorkHoursRestService constructor() {
         }
         RestQueueService.getInstance(context).addToRequestQueue(userDataRequest)
     }
+
+    fun getMonthlyReport(context: Context, volleyResponse: VolleyResponse) {
+        HttpsTrustManager.allowAllSSL()
+        val sharedPrefs = context.getSharedPreferences("jwt", Context.MODE_PRIVATE)
+        val jwt = sharedPrefs.getString("token", "")
+        val userDataRequest = object : JsonObjectRequest(
+            Request.Method.GET,
+            Constants.baseUrl +  "/api/v1/monthly/",
+            null,
+            Response.Listener { response ->
+                volleyResponse.onSuccess(response)
+            }, { error ->
+                volleyResponse.onError(error)
+            }) {
+            @Throws(AuthFailureError::class)
+            override fun getHeaders(): Map<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer $jwt"
+                return headers
+            }
+        }
+        RestQueueService.getInstance(context).addToRequestQueue(userDataRequest)
+    }
 }

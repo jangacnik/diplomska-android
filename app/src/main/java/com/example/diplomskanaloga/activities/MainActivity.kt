@@ -79,41 +79,7 @@ class MainActivity : AppCompatActivity(), OnChartValueSelectedListener {
         chart.animate()
     }
 
-    fun horizontalBarChartText(id: Int) {
-        val entries: MutableList<BarEntry> = ArrayList()
-        entries.add(BarEntry(0f, 168f))
-        entries.add(BarEntry(1f, 141f))
-        entries.add(BarEntry(2f, 155f))
-        entries.add(BarEntry(3f, 167f))
-        entries.add(BarEntry(4f, 168f))
-        entries.add(BarEntry(5f, 180f))
-        entries.add(BarEntry(6f, 157f))
-        entries.add(BarEntry(7f, 167f))
-        entries.add(BarEntry(8f, 160f))
-        entries.add(BarEntry(9f, 164f))
-        entries.add(BarEntry(10f, 178f))
-        entries.add(BarEntry(11f, 158f))
-        val valueFormatter = ChartValueFormatter("", " h", Constants.MONTHS_LABEL)
-        val barData = BarDataSet(entries, null)
-        barData.color = resources.getColor(R.color.secondaryColor)
-        val data = BarData(barData)
-        data.setValueFormatter(valueFormatter)
-        data.barWidth = 0.9f
-        val chart: HorizontalBarChart =
-            ChartUtils.setHorizontalBarChartDefault(findViewById<HorizontalBarChart>(id))
-        chart.xAxis.setLabelCount(entries.size, false)
-        chart.data = data
-        chart.data.setValueTextSize(14f)
-        chart.offsetLeftAndRight(20)
-        chart.animateXY(1000, 1000)
-        chart.setDrawValueAboveBar(false)
-        // fixes not showing of values in horizontal chart
-        chart.axisLeft.axisMinimum = 0f
-        chart.axisLeft.axisMaximum = data.yMax
-        chart.setOnChartValueSelectedListener(this)
-        chart.xAxis.valueFormatter = valueFormatter
-        chart.animate()
-    }
+
 
     override fun onValueSelected(e: Entry?, h: Highlight?) {
         Log.w("values", e.toString())

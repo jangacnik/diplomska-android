@@ -214,7 +214,7 @@
                     <com.github.mikephil.charting.charts.HorizontalBarChart
                         android:id="@+id/yearly_overview_chart"
                         android:layout_width="0dp"
-                        android:layout_height="450dp"
+                        android:layout_height="500dp"
                         android:layout_marginBottom="8dp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintLeft_toLeftOf="parent"

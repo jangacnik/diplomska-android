@@ -34,7 +34,27 @@ class ChartUtils {
         }
 
         fun setHorizontalBarChartDefault(chart: HorizontalBarChart): HorizontalBarChart {
-            // hide all lines of chart
+//            // hide all lines of chart
+//            chart.axisLeft.setDrawLabels(false)
+//            chart.axisLeft.setDrawGridLines(false)
+//            chart.axisLeft.setDrawAxisLine(false)
+//            chart.axisRight.setDrawLabels(false)
+//            chart.axisRight.setDrawGridLines(false)
+//            chart.axisRight.setDrawAxisLine(false)
+//            chart.xAxis.setDrawAxisLine(false)
+//            chart.xAxis.setDrawGridLines(false)
+//            // set labels for bars
+//            chart.xAxis.granularity = 1f
+//            chart.xAxis.isGranularityEnabled = true
+//            chart.xAxis.setCenterAxisLabels(false)
+//            chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
+//            chart.xAxis.valueFormatter = IndexAxisValueFormatter(Constants.MONTHS_LABEL)
+//            // hide description
+//            chart.description.text = ""
+//            // hide legend
+//            chart.legend.isEnabled = false
+//            chart.setFitBars(true)
+
             chart.axisLeft.setDrawLabels(false)
             chart.axisLeft.setDrawGridLines(false)
             chart.axisLeft.setDrawAxisLine(false)
@@ -44,16 +64,16 @@ class ChartUtils {
             chart.xAxis.setDrawAxisLine(false)
             chart.xAxis.setDrawGridLines(false)
             // set labels for bars
-//            chart.xAxis.granularity = 1f
-//            chart.xAxis.isGranularityEnabled = true
-//            chart.xAxis.setCenterAxisLabels(false)
+            chart.xAxis.granularity = 1f
+            chart.xAxis.isGranularityEnabled = true
+            chart.xAxis.setCenterAxisLabels(false)
             chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
-//            chart.xAxis.valueFormatter = IndexAxisValueFormatter(Constants.MONTHS_LABEL)
+            chart.xAxis.valueFormatter = IndexAxisValueFormatter(Constants.MONTHS_LABEL)
             // hide description
             chart.description.text = ""
             // hide legend
             chart.legend.isEnabled = false
-            chart.setFitBars(true)
+            chart.setFitBars(false)
             return chart
         }
     }

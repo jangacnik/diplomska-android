@@ -11,5 +11,5 @@ object Constants {
     // Labels for charts
     val WEEKDAY_LABEL: List<String> = Collections.unmodifiableList(listOf("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"))
     val WEEKDAY_LABEL_SLO: List<String> = Collections.unmodifiableList(listOf("PON", "TOR", "SRE", "CET", "PET", "SOB", "NED"))
-    val MONTHS_LABEL: List<String> = Collections.unmodifiableList(listOf("JAN", "FEB", "MAR", "APR", "MAJ", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DEC"))
+    val MONTHS_LABEL: List<String> = Collections.unmodifiableList(listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
 }
