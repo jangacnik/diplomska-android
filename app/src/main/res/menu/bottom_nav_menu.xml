@@ -6,10 +6,10 @@
         android:icon="@drawable/ic_home_black_24dp"
         android:title="@string/title_home" />
 
-    <item
-        android:id="@+id/navigation_schedule"
-        android:icon="@drawable/ic_baseline_calendar_month_24"
-        android:title="@string/title_schedule" />
+<!--    <item-->
+<!--        android:id="@+id/navigation_schedule"-->
+<!--        android:icon="@drawable/ic_baseline_calendar_month_24"-->
+<!--        android:title="@string/title_schedule" />-->
 
     <item
         android:id="@+id/navigation_profile"

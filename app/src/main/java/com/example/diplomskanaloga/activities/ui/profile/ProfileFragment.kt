@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -33,7 +34,6 @@ class ProfileFragment : Fragment() {
     lateinit var userData: Employee
     val gson = Gson()
 
-
     private lateinit var birthdayEditText: EditText
     private lateinit var nameEditText: EditText
     private lateinit var surnameEditText: EditText
@@ -43,6 +43,7 @@ class ProfileFragment : Fragment() {
     private lateinit var statuTextView: TextView
     private lateinit var roleTextview: TextView
     private lateinit var editPersonalDataButton: Button
+
     private var editingData: Boolean = false
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -130,7 +131,6 @@ class ProfileFragment : Fragment() {
             streetEditText.isEnabled = false
             zipEditText.isEnabled = false
             cityEditText.isEnabled = false
-//            roleTextview.isEnabled = false
             editPersonalDataButton.setText("Edit")
             var changes: HashMap<String, String> = HashMap()
             changes.put("id",userData.uuid.toString())
@@ -139,12 +139,6 @@ class ProfileFragment : Fragment() {
             changes.put("street",streetEditText.text.toString())
             changes.put("city",cityEditText.text.toString())
             changes.put("postalCode",zipEditText.text.toString())
-            Log.i("Personal data", userData.toString())
-            userData.name = nameEditText.text.toString()
-            userData.surname = surnameEditText.text.toString()
-            userData.address.street = streetEditText.text.toString()
-            userData.address.city = cityEditText.text.toString()
-            userData.address.postalCode = zipEditText.text.toString()
             employeeRestService.updateUserData(changes, this.requireContext(),object : VolleyResponse {
                 override fun onSuccess(response: Any?) {
                     userData = gson.fromJson(response.toString(), Employee::class.java)
@@ -155,6 +149,7 @@ class ProfileFragment : Fragment() {
                     cityEditText.setText(userData.address.city)
                 }
                 override fun onError(error: VolleyError?) {
+                    Toast.makeText(requireContext(), "Update was unsuccessful", Toast.LENGTH_LONG).show()
                 }})
         }else {
             editPersonalDataButton.setText("Save")
@@ -164,7 +159,6 @@ class ProfileFragment : Fragment() {
             streetEditText.isEnabled = true
             zipEditText.isEnabled = true
             cityEditText.isEnabled = true
-//            roleTextview.isEnabled = true
         }
     }
 }

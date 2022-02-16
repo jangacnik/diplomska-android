@@ -11,11 +11,11 @@
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 
-    <fragment
-        android:id="@+id/navigation_schedule"
-        android:name="com.example.diplomskanaloga.activities.ui.schedule.ScheduleFragment"
-        android:label="@string/title_schedule"
-        tools:layout="@layout/fragment_schedule" />
+<!--    <fragment-->
+<!--        android:id="@+id/navigation_schedule"-->
+<!--        android:name="com.example.diplomskanaloga.activities.ui.schedule.ScheduleFragment"-->
+<!--        android:label="@string/title_schedule"-->
+<!--        tools:layout="@layout/fragment_schedule" />-->
 
     <fragment
         android:id="@+id/navigation_profile"
