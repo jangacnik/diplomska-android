@@ -83,5 +83,28 @@ class EmployeeRestService constructor() {
         RestQueueService.getInstance(context).addToRequestQueue(userDataRequest)
     }
 
-
+   fun updateUserData(changes: HashMap<String, String>, context: Context, volleyResponse: VolleyResponse) {
+       HttpsTrustManager.allowAllSSL()
+//       userData.roles = null
+       val data = JSONObject(gson.toJson(changes))
+       val sharedPrefs = context.getSharedPreferences("jwt", Context.MODE_PRIVATE)
+       val jwt = sharedPrefs.getString("token", "")
+       val userDataRequest = object : JsonObjectRequest(
+           Request.Method.PUT,
+           Constants.baseUrl + Constants.employeeSufix + "/update",
+           data,
+           Response.Listener { response ->
+               volleyResponse.onSuccess(response)
+           }, { error ->
+               volleyResponse.onError(error)
+           }) {
+           @Throws(AuthFailureError::class)
+           override fun getHeaders(): Map<String, String> {
+               val headers = HashMap<String, String>()
+               headers["Authorization"] = "Bearer $jwt"
+               return headers
+           }
+       }
+       RestQueueService.getInstance(context).addToRequestQueue(userDataRequest)
+    }
 }

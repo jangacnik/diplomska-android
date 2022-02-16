@@ -1,7 +1,5 @@
 package com.example.diplomskanaloga.activities.ui.home
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,16 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.android.volley.VolleyError
 import com.example.diplomskanaloga.Constants
 import com.example.diplomskanaloga.R
-import com.example.diplomskanaloga.activities.AuthenticationActivity
 import com.example.diplomskanaloga.databinding.FragmentHomeBinding
 import com.example.diplomskanaloga.interfaces.VolleyResponse
-import com.example.diplomskanaloga.models.Employee
-import com.example.diplomskanaloga.models.response.WeeklyReportResponse
 import com.example.diplomskanaloga.services.EmployeeRestService
 import com.example.diplomskanaloga.services.WorkHoursRestService
 import com.example.diplomskanaloga.utils.ChartUtils
@@ -33,7 +27,6 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import java.text.DecimalFormat
 
 class HomeFragment : Fragment(), OnChartValueSelectedListener {
 
@@ -41,10 +34,8 @@ class HomeFragment : Fragment(), OnChartValueSelectedListener {
     private var _binding: FragmentHomeBinding? = null
     lateinit var employeeRestService: EmployeeRestService
     lateinit var workHoursRestService: WorkHoursRestService
-    lateinit var userData: Employee
     lateinit var weeklyReport: Map<String, Long>
     lateinit var monthlyReport: Map<String, Long>
-    private val decimalFormat = DecimalFormat("###,###,##0.0")
 
     // elements
     lateinit var hoursThisWeekTextview: TextView
@@ -68,22 +59,13 @@ class HomeFragment : Fragment(), OnChartValueSelectedListener {
         workHoursRestService = WorkHoursRestService()
         homeViewModel =
             ViewModelProvider(this).get(HomeViewModel::class.java)
-
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
-
         barChart = binding.weeklyBarChart
         horizontalBarChart = binding.yearlyOverviewChart
         hoursThisWeekTextview = root.findViewById(R.id.textView_week_total)
         getWeeklyReport(root)
         getMonthlyReport(root)
-//        horizontalBarChartText()
-//        val textView: TextView = binding.textHome
-//        homeViewModel.text.observe(viewLifecycleOwner, Observer {
-//            textView.text = it
-//        })
-//        barchartTest()
-//        horizontalBarChartText()
         return root
     }
 
@@ -100,7 +82,6 @@ class HomeFragment : Fragment(), OnChartValueSelectedListener {
 //                Log.w("Response", weeklyReport)
                 initWeeklyBarChart(weeklyReport)
             }
-
             override fun onError(error: VolleyError?) {
                 if (error != null) {
                     Log.e("Response Error", error.networkResponse.toString())
@@ -127,7 +108,6 @@ class HomeFragment : Fragment(), OnChartValueSelectedListener {
     }
 
     fun initWeeklyBarChart(values: Map<String, Long>) {
-
         val entries: MutableList<BarEntry> = ArrayList()
         Constants.WEEKDAY_LABEL.forEach { v ->
             if (values[v] != null) {
@@ -165,83 +145,20 @@ class HomeFragment : Fragment(), OnChartValueSelectedListener {
             if (values[v] != null) {
                 val fVal = values.get(v)!!.toFloat()
                 var time: Float = fVal.div(60f)
-                entries.add(BarEntry(Constants.MONTHS_LABEL.indexOf(v).toFloat()-1, time)) // -1 because january is 1 not 0 in backend
+                entries.add(
+                    BarEntry(
+                        Constants.MONTHS_LABEL.indexOf(v).toFloat()-1 ,
+                        time
+                    )
+                ) // -1 because january is 1 not 0 in backend
             } else {
                 entries.add(BarEntry(Constants.MONTHS_LABEL.indexOf(v).toFloat(), 0f))
             }
         }
-        val valueFormatter = ChartValueFormatter("", " h", Constants.MONTHS_LABEL.filter { label -> values.get(label) != null })
-        val barData = BarDataSet(entries, null)
-        barData.color = resources.getColor(R.color.secondaryColor)
-        val data = BarData(barData)
-        data.setValueFormatter(valueFormatter)
-        data.barWidth = 0.9f
-        val chart: HorizontalBarChart =
-            ChartUtils.setHorizontalBarChartDefault(horizontalBarChart)
-        chart.xAxis.setLabelCount(entries.size, false)
-        chart.data = data
-        chart.data.setValueTextSize(14f)
-        chart.offsetLeftAndRight(20)
-        chart.animateXY(1000, 1000)
-        chart.setDrawValueAboveBar(false)
-        // fixes not showing of values in horizontal chart
-        chart.axisLeft.axisMinimum = 0f
-        chart.axisLeft.axisMaximum = data.yMax
-        chart.setOnChartValueSelectedListener(this)
-        chart.xAxis.valueFormatter = valueFormatter
-        chart.animate()
-
-
-//
-//        val barData = BarDataSet(entries, null)
-//        barData.color = resources.getColor(R.color.secondaryColor)
-//        val data = BarData(barData)
-//        data.barWidth = 0.8f
-//        val chart: BarChart = ChartUtils.setHorizontalBarChartDefault(horizontalBarChart)
-//        chart.data = data
-//        chart.animateXY(1000, 1000)
-//        // set text size of bar values
-//        chart.data.setValueTextSize(14f)
-//        chart.animate()
-    }
-
-
-    fun barchartTest() {
-        val entries: MutableList<BarEntry> = ArrayList()
-        entries.add(BarEntry(0f, 30f))
-        entries.add(BarEntry(1f, 120f))
-        entries.add(BarEntry(2f, 50f))
-        entries.add(BarEntry(3f, 60f))
-        entries.add(BarEntry(4f, 10f))
-        entries.add(BarEntry(5f, 70f))
-        val barData = BarDataSet(entries, null)
-        barData.color = resources.getColor(R.color.secondaryColor)
-        val data = BarData(barData)
-        data.barWidth = 0.9f
-        val chart: BarChart = ChartUtils.setBarChartDefaults(barChart)
-        chart.data = data
-        chart.animateXY(1000, 1000)
-        // set text size of bar values
-        chart.data.setValueTextSize(14f)
-
-        chart.animate()
-    }
-
-    fun horizontalBarChartText() {
-        val entries: MutableList<BarEntry> = ArrayList()
-        entries.add(BarEntry(0f, 168f))
-        entries.add(BarEntry(1f, 141f))
-        entries.add(BarEntry(2f, 155f))
-        entries.add(BarEntry(3f, 167f))
-        entries.add(BarEntry(4f, 168f))
-        entries.add(BarEntry(5f, 180f))
-        entries.add(BarEntry(6f, 157f))
-        entries.add(BarEntry(7f, 167f))
-        entries.add(BarEntry(8f, 160f))
-        entries.add(BarEntry(9f, 164f))
-        entries.add(BarEntry(10f, 178f))
-        entries.add(BarEntry(11f, 158f))
-        val valueFormatter = ChartValueFormatter("", " h", Constants.MONTHS_LABEL)
+        val valueFormatter = ChartValueFormatter(
+            "",
+            " h",
+            Constants.MONTHS_LABEL)
         val barData = BarDataSet(entries, null)
         barData.color = resources.getColor(R.color.secondaryColor)
         val data = BarData(barData)

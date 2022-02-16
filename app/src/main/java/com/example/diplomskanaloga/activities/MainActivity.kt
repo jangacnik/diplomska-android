@@ -46,9 +46,20 @@ class MainActivity : AppCompatActivity(), OnChartValueSelectedListener {
         if (!sharedPreferences.contains(getString(R.string.preference_token))) {
             openAuth()
         } else {
-            val intent = Intent(this, NavigationActivity::class.java).apply {
-            }
-            startActivity(intent)
+            employeeRestService.getUserData(this, object : VolleyResponse {
+                override fun onSuccess(response: Any?) {
+                    userData = gson.fromJson(response.toString(), Employee::class.java)
+                    Log.w("Response", userData.toString())
+                    openHome()
+                }
+
+                override fun onError(error: VolleyError?) {
+                    if (error != null) {
+                        Log.e("Response Error", error.networkResponse.toString())
+                        openAuth()
+                    }
+                }
+            })
         }
     }
 
@@ -56,6 +67,13 @@ class MainActivity : AppCompatActivity(), OnChartValueSelectedListener {
         val intent = Intent(this, AuthenticationActivity::class.java).apply {
         }
         startActivity(intent)
+    }
+
+    fun openHome() {
+        val intent = Intent(this, NavigationActivity::class.java).apply {
+        }
+        startActivity(intent)
+
     }
 
     fun barchartTest(id: Int) {

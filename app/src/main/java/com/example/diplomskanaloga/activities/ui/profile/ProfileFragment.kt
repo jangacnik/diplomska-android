@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -20,6 +21,7 @@ import com.example.diplomskanaloga.services.EmployeeRestService
 import com.google.gson.Gson
 import java.lang.StringBuilder
 import java.util.*
+import kotlin.collections.HashMap
 
 class ProfileFragment : Fragment() {
 
@@ -40,6 +42,8 @@ class ProfileFragment : Fragment() {
     private lateinit var cityEditText: EditText
     private lateinit var statuTextView: TextView
     private lateinit var roleTextview: TextView
+    private lateinit var editPersonalDataButton: Button
+    private var editingData: Boolean = false
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
@@ -54,10 +58,16 @@ class ProfileFragment : Fragment() {
 
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val root: View = binding.root
-        calendar = Calendar.getInstance()
 
+        editPersonalDataButton = root.findViewById(R.id.edit_personal_info_button)
+        editPersonalDataButton.setOnClickListener {
+            onEditPersonalData()
+        }
+
+        calendar = Calendar.getInstance()
         employeeRestService = EmployeeRestService()
         getUserData(root)
+
         return root
     }
 
@@ -78,16 +88,16 @@ class ProfileFragment : Fragment() {
     }
 
     fun initUserData(root: View) {
-        birthdayEditText = root.findViewById(R.id.birthday_editText) // not in db
+//        birthdayEditText = root.findViewById(R.id.birthday_editText) // not in db
         nameEditText = root.findViewById(R.id.name_editText)
         surnameEditText = root.findViewById(R.id.lastname_editText)
         streetEditText = root.findViewById(R.id.street_editText)
         zipEditText = root.findViewById(R.id.zip_editText)
         cityEditText = root.findViewById(R.id.city_editText)
         roleTextview = root.findViewById(R.id.textViewRole)
-        birthdayEditText.setOnClickListener {
-            onDateEditTextClicked()
-        }
+//        birthdayEditText.setOnClickListener {
+//            onDateEditTextClicked()
+//        }
         nameEditText.setText(userData.name)
         surnameEditText.setText(userData.surname)
         streetEditText.setText(userData.address.street)
@@ -110,5 +120,51 @@ class ProfileFragment : Fragment() {
         val mDay = calendar.get(Calendar.DAY_OF_MONTH)
         datePickerDialog = DatePickerDialog(this.requireContext(), DatePickerDialog.OnDateSetListener { _, i, i2, i3 -> birthdayEditText.setText(StringBuilder().append(i3).append(".").append(i2+1).append(".").append(i))},mYear,mMonth,mDay)
         datePickerDialog.show()
+    }
+
+    fun onEditPersonalData() {
+        if(editingData) {
+            editingData = false
+            nameEditText.isEnabled = false
+            surnameEditText.isEnabled = false
+            streetEditText.isEnabled = false
+            zipEditText.isEnabled = false
+            cityEditText.isEnabled = false
+//            roleTextview.isEnabled = false
+            editPersonalDataButton.setText("Edit")
+            var changes: HashMap<String, String> = HashMap()
+            changes.put("id",userData.uuid.toString())
+            changes.put("name",nameEditText.text.toString())
+            changes.put("surname",surnameEditText.text.toString())
+            changes.put("street",streetEditText.text.toString())
+            changes.put("city",cityEditText.text.toString())
+            changes.put("postalCode",zipEditText.text.toString())
+            Log.i("Personal data", userData.toString())
+            userData.name = nameEditText.text.toString()
+            userData.surname = surnameEditText.text.toString()
+            userData.address.street = streetEditText.text.toString()
+            userData.address.city = cityEditText.text.toString()
+            userData.address.postalCode = zipEditText.text.toString()
+            employeeRestService.updateUserData(changes, this.requireContext(),object : VolleyResponse {
+                override fun onSuccess(response: Any?) {
+                    userData = gson.fromJson(response.toString(), Employee::class.java)
+                    nameEditText.setText(userData.name)
+                    surnameEditText.setText(userData.surname)
+                    streetEditText.setText(userData.address.street)
+                    zipEditText.setText(userData.address.postalCode)
+                    cityEditText.setText(userData.address.city)
+                }
+                override fun onError(error: VolleyError?) {
+                }})
+        }else {
+            editPersonalDataButton.setText("Save")
+            editingData = true
+            nameEditText.isEnabled = true
+            surnameEditText.isEnabled = true
+            streetEditText.isEnabled = true
+            zipEditText.isEnabled = true
+            cityEditText.isEnabled = true
+//            roleTextview.isEnabled = true
+        }
     }
 }
