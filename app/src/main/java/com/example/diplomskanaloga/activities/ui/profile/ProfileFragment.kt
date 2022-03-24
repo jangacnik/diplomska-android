@@ -11,7 +11,6 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.android.volley.VolleyError
 import com.example.diplomskanaloga.R
@@ -19,8 +18,8 @@ import com.example.diplomskanaloga.databinding.FragmentProfileBinding
 import com.example.diplomskanaloga.interfaces.VolleyResponse
 import com.example.diplomskanaloga.models.Employee
 import com.example.diplomskanaloga.services.EmployeeRestService
+import com.example.diplomskanaloga.services.WorkHoursRestService
 import com.google.gson.Gson
-import java.lang.StringBuilder
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -31,10 +30,13 @@ class ProfileFragment : Fragment() {
     private lateinit var calendar: Calendar
     private lateinit var datePickerDialog: DatePickerDialog
     lateinit var employeeRestService: EmployeeRestService
+    lateinit var workHoursRestService: WorkHoursRestService
     lateinit var userData: Employee
     val gson = Gson()
+    private var status = ""
+    private var isWorking = false
+    private var isOnBreak = false
 
-    private lateinit var birthdayEditText: EditText
     private lateinit var nameEditText: EditText
     private lateinit var surnameEditText: EditText
     private lateinit var streetEditText: EditText
@@ -43,6 +45,9 @@ class ProfileFragment : Fragment() {
     private lateinit var statuTextView: TextView
     private lateinit var roleTextview: TextView
     private lateinit var editPersonalDataButton: Button
+
+    private lateinit var workBtn: Button
+    private lateinit var breakBtn: Button
 
     private var editingData: Boolean = false
     // This property is only valid between onCreateView and
@@ -60,14 +65,12 @@ class ProfileFragment : Fragment() {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        editPersonalDataButton = root.findViewById(R.id.edit_personal_info_button)
-        editPersonalDataButton.setOnClickListener {
-            onEditPersonalData()
-        }
 
         calendar = Calendar.getInstance()
         employeeRestService = EmployeeRestService()
+        workHoursRestService = WorkHoursRestService()
         getUserData(root)
+        initUserActivity(root)
 
         return root
     }
@@ -89,16 +92,12 @@ class ProfileFragment : Fragment() {
     }
 
     fun initUserData(root: View) {
-//        birthdayEditText = root.findViewById(R.id.birthday_editText) // not in db
         nameEditText = root.findViewById(R.id.name_editText)
         surnameEditText = root.findViewById(R.id.lastname_editText)
         streetEditText = root.findViewById(R.id.street_editText)
         zipEditText = root.findViewById(R.id.zip_editText)
         cityEditText = root.findViewById(R.id.city_editText)
         roleTextview = root.findViewById(R.id.textViewRole)
-//        birthdayEditText.setOnClickListener {
-//            onDateEditTextClicked()
-//        }
         nameEditText.setText(userData.name)
         surnameEditText.setText(userData.surname)
         streetEditText.setText(userData.address.street)
@@ -110,17 +109,26 @@ class ProfileFragment : Fragment() {
         roleTextview.setText(roles)
     }
 
+    fun initUserActivity(root: View) {
+        statuTextView = root.findViewById(R.id.status_textView)
+        editPersonalDataButton = root.findViewById(R.id.edit_personal_info_button)
+        workBtn = root.findViewById(R.id.button_record_day)
+        breakBtn = root.findViewById(R.id.button_record_break)
+        editPersonalDataButton.setOnClickListener {
+            onEditPersonalData()
+        }
+        getWorkStatus()
+        workBtn.setOnClickListener {
+            onWorkButtonClick()
+        }
+        breakBtn.setOnClickListener {
+            onBreakButtonClick()
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    fun onDateEditTextClicked() {
-        val mYear = calendar.get(Calendar.YEAR)
-        val mMonth = calendar.get(Calendar.MONTH)
-        val mDay = calendar.get(Calendar.DAY_OF_MONTH)
-        datePickerDialog = DatePickerDialog(this.requireContext(), DatePickerDialog.OnDateSetListener { _, i, i2, i3 -> birthdayEditText.setText(StringBuilder().append(i3).append(".").append(i2+1).append(".").append(i))},mYear,mMonth,mDay)
-        datePickerDialog.show()
     }
 
     fun onEditPersonalData() {
@@ -159,6 +167,115 @@ class ProfileFragment : Fragment() {
             streetEditText.isEnabled = true
             zipEditText.isEnabled = true
             cityEditText.isEnabled = true
+        }
+    }
+
+    fun getWorkStatus() {
+        workHoursRestService.getWorkStatus(this.requireContext(), object : VolleyResponse {
+            override fun onSuccess(response: Any?) {
+                status = response.toString()
+                statuTextView.setText(status)
+                when(status) {
+                    "On break" -> {
+                        breakBtn.isEnabled = true
+                        workBtn.setText(getString(R.string.stop_work))
+                        breakBtn.setText(getText(R.string.stop_break))}
+                    "Working" -> {
+                        breakBtn.isEnabled = true
+                        workBtn.setText(getString(R.string.stop_work))
+                        breakBtn.setText(getText(R.string.start_break))}
+                    else -> {
+                        breakBtn.isEnabled = false
+                        workBtn.setText(getString(R.string.start_work))
+                        breakBtn.setText(getText(R.string.start_break))
+                    }
+                }
+
+            }
+
+            override fun onError(error: VolleyError?) {
+                if (error != null) {
+                    Log.e("Response Error", error.networkResponse.toString())
+                }
+            }
+        })
+    }
+
+    fun onWorkButtonClick() {
+        when(status) {
+
+            "On break" -> {
+                workHoursRestService.stopWorkday(userData.uuid.toString(), this.requireContext(), object : VolleyResponse {
+                    override fun onSuccess(response: Any?) {
+
+                        getWorkStatus()
+                        }
+
+                    override fun onError(error: VolleyError?) {
+
+                    }
+                })
+            }
+
+            "Working" -> {
+                workHoursRestService.stopWorkday(userData.uuid.toString(), this.requireContext(), object : VolleyResponse {
+                    override fun onSuccess(response: Any?) {
+
+                        getWorkStatus()
+                    }
+
+                    override fun onError(error: VolleyError?) {
+
+                    }
+                })
+            }
+            else -> {
+                workHoursRestService.startWorkday(userData.uuid.toString(), this.requireContext(), object : VolleyResponse {
+                    override fun onSuccess(response: Any?) {
+
+                        getWorkStatus()
+                    }
+
+                    override fun onError(error: VolleyError?) {
+
+                    }
+                })
+            }
+
+        }
+    }
+
+    fun onBreakButtonClick() {
+        when(status) {
+
+            "On break" -> {
+                workHoursRestService.stopBreak(userData.uuid.toString(), this.requireContext(), object : VolleyResponse {
+                    override fun onSuccess(response: Any?) {
+
+                        getWorkStatus()
+                    }
+
+                    override fun onError(error: VolleyError?) {
+
+                    }
+                })
+            }
+
+            "Working" -> {
+                workHoursRestService.startBreak(userData.uuid.toString(), this.requireContext(), object : VolleyResponse {
+                    override fun onSuccess(response: Any?) {
+                        getWorkStatus()
+                    }
+
+                    override fun onError(error: VolleyError?) {
+
+                    }
+                })
+            }
+            else -> {
+                //nothing
+            }
+
         }
     }
 }

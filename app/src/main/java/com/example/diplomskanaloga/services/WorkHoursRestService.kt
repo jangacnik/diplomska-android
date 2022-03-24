@@ -78,4 +78,114 @@ class WorkHoursRestService constructor() {
         }
         RestQueueService.getInstance(context).addToRequestQueue(userDataRequest)
     }
+
+    fun getWorkStatus(context: Context, volleyResponse: VolleyResponse) {
+
+        HttpsTrustManager.allowAllSSL()
+        val sharedPrefs = context.getSharedPreferences("jwt", Context.MODE_PRIVATE)
+        val jwt = sharedPrefs.getString("token", "")
+        val userDataRequest = object : com.android.volley.toolbox.StringRequest(
+            Request.Method.GET,
+            Constants.baseUrl +  "/api/v1/hours/status",
+            Response.Listener { response: String ->
+                volleyResponse.onSuccess(response)
+            }, { error ->
+                volleyResponse.onError(error)
+            }) {
+            @Throws(AuthFailureError::class)
+            override fun getHeaders(): Map<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer $jwt"
+                return headers
+            }
+        }
+        RestQueueService.getInstance(context).addToRequestQueue(userDataRequest)
+    }
+
+    fun startWorkday(uuid: String,context: Context, volleyResponse: VolleyResponse) {
+        HttpsTrustManager.allowAllSSL()
+        val sharedPrefs = context.getSharedPreferences("jwt", Context.MODE_PRIVATE)
+        val jwt = sharedPrefs.getString("token", "")
+        val userDataRequest = object : com.android.volley.toolbox.StringRequest(
+            Request.Method.POST,
+            Constants.baseUrl +  "/api/v1/hours/new/$uuid/WORK",
+            Response.Listener { response: String ->
+                volleyResponse.onSuccess(response)
+            }, { error ->
+                volleyResponse.onError(error)
+            }) {
+            @Throws(AuthFailureError::class)
+            override fun getHeaders(): Map<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer $jwt"
+                return headers
+            }
+        }
+        RestQueueService.getInstance(context).addToRequestQueue(userDataRequest)
+    }
+    fun stopWorkday(uuid: String,context: Context, volleyResponse: VolleyResponse) {
+        HttpsTrustManager.allowAllSSL()
+        val sharedPrefs = context.getSharedPreferences("jwt", Context.MODE_PRIVATE)
+        val jwt = sharedPrefs.getString("token", "")
+        val userDataRequest = object : JsonObjectRequest(
+            Request.Method.PUT,
+            Constants.baseUrl +  "/api/v1/hours/end/$uuid",
+            null,
+            Response.Listener { response ->
+                volleyResponse.onSuccess(response)
+            }, { error ->
+                volleyResponse.onError(error)
+            }) {
+            @Throws(AuthFailureError::class)
+            override fun getHeaders(): Map<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer $jwt"
+                return headers
+            }
+        }
+        RestQueueService.getInstance(context).addToRequestQueue(userDataRequest)
+    }
+    fun startBreak(uuid: String,context: Context, volleyResponse: VolleyResponse) {
+        HttpsTrustManager.allowAllSSL()
+        val sharedPrefs = context.getSharedPreferences("jwt", Context.MODE_PRIVATE)
+        val jwt = sharedPrefs.getString("token", "")
+        val userDataRequest = object : com.android.volley.toolbox.StringRequest(
+            Request.Method.POST,
+            Constants.baseUrl +  "/api/v1/hours/break/start/$uuid",
+            Response.Listener { response: String ->
+                volleyResponse.onSuccess(response)
+            }, { error ->
+                volleyResponse.onError(error)
+            }) {
+            @Throws(AuthFailureError::class)
+            override fun getHeaders(): Map<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer $jwt"
+                return headers
+            }
+        }
+        RestQueueService.getInstance(context).addToRequestQueue(userDataRequest)
+
+    }
+    fun stopBreak(uuid: String,context: Context, volleyResponse: VolleyResponse) {
+        HttpsTrustManager.allowAllSSL()
+        val sharedPrefs = context.getSharedPreferences("jwt", Context.MODE_PRIVATE)
+        val jwt = sharedPrefs.getString("token", "")
+        val userDataRequest = object : com.android.volley.toolbox.StringRequest(
+            Request.Method.PUT,
+            Constants.baseUrl +  "/api/v1/hours/break/end/$uuid",
+            Response.Listener { response: String ->
+                volleyResponse.onSuccess(response)
+            }, { error ->
+                volleyResponse.onError(error)
+            }) {
+            @Throws(AuthFailureError::class)
+            override fun getHeaders(): Map<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer $jwt"
+                return headers
+            }
+        }
+        RestQueueService.getInstance(context).addToRequestQueue(userDataRequest)
+    }
 }

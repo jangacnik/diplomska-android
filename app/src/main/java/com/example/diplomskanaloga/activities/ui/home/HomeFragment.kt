@@ -132,7 +132,7 @@ class HomeFragment : Fragment(), OnChartValueSelectedListener {
             override fun onSuccess(response: Any?) {
                 val type = object : TypeToken<Map<String, Long>>() {}.type
                 monthlyReport = gson.fromJson(response.toString(), type)
-//                Log.w("Response", weeklyReport)
+                Log.w("Response", monthlyReport.toString())
                 initMonthlyChart(monthlyReport)
             }
 
@@ -177,11 +177,12 @@ class HomeFragment : Fragment(), OnChartValueSelectedListener {
 
     fun initMonthlyChart(values: Map<String, Long>) {
         // set monthly total
-        val fVal: Double = values[Constants.MONTHS_LABEL[Date().month + 1]]!!.toDouble().div(60f)
-
+        val t = values[Constants.MONTHS_LABEL[Date().month]]
+        Log.e("test", " $t" )
+        val fVal: Double = values[Constants.MONTHS_LABEL[Date().month]]!!.toDouble().div(60f)
         monthTotalTextView.text =
             BigDecimal(fVal).setScale(2, RoundingMode.HALF_EVEN).toString() + " hours"
-        Log.i("DATE", values[Constants.MONTHS_LABEL[Date().month + 1]].toString())
+        Log.i("DATE", values[Constants.MONTHS_LABEL[Date().month]].toString())
 
         // set chart
         val entries: MutableList<BarEntry> = ArrayList()
