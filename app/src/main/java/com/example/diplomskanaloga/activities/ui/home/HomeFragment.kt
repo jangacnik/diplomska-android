@@ -33,6 +33,8 @@ import java.math.RoundingMode
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 class HomeFragment : Fragment(), OnChartValueSelectedListener {
 
@@ -155,9 +157,15 @@ class HomeFragment : Fragment(), OnChartValueSelectedListener {
                 entries.add(BarEntry(Constants.WEEKDAY_LABEL.indexOf(v).toFloat(), 0f))
             }
         }
+        val valueFormatter = ChartValueFormatter(
+            "",
+            " h",
+            Constants.MONTHS_LABEL
+        )
         val barData = BarDataSet(entries, null)
         barData.color = resources.getColor(R.color.secondaryColor)
         val data = BarData(barData)
+        data.setValueFormatter(valueFormatter)
         data.barWidth = 0.9f
         val chart: BarChart = ChartUtils.setBarChartDefaults(barChart)
         chart.data = data
@@ -167,30 +175,30 @@ class HomeFragment : Fragment(), OnChartValueSelectedListener {
 
         chart.animate()
         var totalMin: Long = 0
-        var totalHour: Float = 0f
         for ((key, value) in values) {
             totalMin += value
         }
-        totalHour = totalMin.toFloat().div(60).toFloat()
+        var totalHour  = totalMin.toBigDecimal().setScale(2, RoundingMode.HALF_EVEN).div(BigDecimal(60))
         hoursThisWeekTextview.text = "$totalHour hours"
     }
 
     fun initMonthlyChart(values: Map<String, Long>) {
         // set monthly total
+        var fVal: Double = 0.0
         val t = values[Constants.MONTHS_LABEL[Date().month]]
         Log.e("test", " $t" )
-        val fVal: Double = values[Constants.MONTHS_LABEL[Date().month]]!!.toDouble().div(60f)
-        monthTotalTextView.text =
-            BigDecimal(fVal).setScale(2, RoundingMode.HALF_EVEN).toString() + " hours"
-        Log.i("DATE", values[Constants.MONTHS_LABEL[Date().month]].toString())
+        if (values[Constants.MONTHS_LABEL[Date().month]] != null){
+            fVal = values[Constants.MONTHS_LABEL[Date().month]]!!.toBigDecimal().setScale(2, RoundingMode.HALF_EVEN).div(BigDecimal(60)).toDouble()
 
+        }
+        monthTotalTextView.setText("$fVal hours")
         // set chart
         val entries: MutableList<BarEntry> = ArrayList()
         Log.e("months", values.toString())
         Constants.MONTHS_LABEL.forEach { v ->
             if (values[v] != null) {
                 val fVal = values.get(v)!!.toFloat()
-                var time: Float = fVal.div(60f)
+                var time = fVal.div(60f)
                 entries.add(
                     BarEntry(
                         Constants.MONTHS_LABEL.indexOf(v).toFloat(),

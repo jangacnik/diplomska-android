@@ -27,4 +27,11 @@
     <string name="stop_work">Stop workday</string>
     <string name="start_break">Start break</string>
     <string name="stop_break">Stop break</string>
+
+    <string name="registered_devices">Registered devices</string>
+    <string name="register_device">Register this device</string>
+    <string name="current_device_not_registerd">Current device is not registered with your profile</string>
+
+    <string name="device_name">Device name:</string>
+    <string name="device_mac">Device MAC:</string>
 </resources>

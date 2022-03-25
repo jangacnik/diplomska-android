@@ -1,7 +1,6 @@
 package com.example.diplomskanaloga.utils
 
 import android.util.Log
-import com.example.diplomskanaloga.Constants
 import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.formatter.ValueFormatter
 import java.text.DecimalFormat
